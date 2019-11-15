@@ -1,0 +1,48 @@
+---
+title: "20191115_eigenvalue"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Checking "Eigenvectors from Eigenvalues" (arXiv:1908.03795) by Peter B. Denton, Stephen J. Parke, Terence Tao, Xining Zhang
+
+## prepare a matrix
+```{r}
+n = 5
+A = matrix(runif(n*n),n,n)
+A = A + t(A)
+A
+```
+
+## eigenvalues and eigenvectors
+```{r}
+f = eigen(A)
+X = (f$vectors)^2 # X[j,i] = |v_{i,j}|^2
+```
+
+## eigenvalues of submatrices
+```{r}
+fj = list()
+for(j in 1:n) fj[[j]] = eigen(A[-j,-j])
+```
+
+## reconstruct eigenvectors from eigenvalues
+```{r}
+Y = X
+for(i in 1:n) {
+  a = prod(f$values[i] - f$values[-i])
+  for(j in 1:n) {
+    b = prod(f$values[i] - fj[[j]]$values)
+    Y[j,i] = b/a
+  }
+}
+```
+
+## check the result
+```{r}
+plot(X,Y, xlab="|v_{i,j}|^2", ylab="reconstructed from eigenvalues") ; abline(0,1, col="red")
+```
+
